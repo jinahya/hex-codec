@@ -4,9 +4,9 @@
   <modelVersion>4.0.0</modelVersion>
 
   <!-- The Basics -->
-  <groupId>com.googlecode.jinahya</groupId>
+  <groupId>com.github.jinahya</groupId>
   <artifactId>hex-codec</artifactId>
-  <version>1.0-alpha-5-SNAPSHOT</version>
+  <version>1.0-alpha-5</version>
   <packaging>jar</packaging>
   <parent>
     <groupId>org.sonatype.oss</groupId>
@@ -286,25 +286,12 @@
     <connection>scm:git:git@github.com:jinahya/hex-codec.git</connection>
     <developerConnection>scm:git:git@github.com:jinahya/hex-codec.git</developerConnection>
     <url>https://github.com/jinahya/hex-codec</url>
-    <tag>HEAD</tag>
+    <tag>1.0</tag>
   </scm>
   <prerequisites>
     <maven>3.0.5</maven>
   </prerequisites>
-  <!--
-  <repositories>
-    <repository>
-      <id>sonatype-nexus-snapshots</id>
-      <releases>
-        <enabled>false</enabled>
-      </releases>
-      <snapshots>
-        <enabled>true</enabled>
-      </snapshots>
-      <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
-    </repository>
-  </repositories>
-  -->
+  <repositories/>
   <pluginRepositories />
   <distributionManagement>
     <site>
