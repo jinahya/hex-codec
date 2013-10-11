@@ -1,0 +1,24 @@
+-classpath
+'D:/gitcl/github.com/jinahya/hex-codec/target/checkout/target/classes;D:/gitcl/github.com/jinahya/hex-codec/target/checkout/target/test-classes;C:/Users/jkwon/.m2/repository/ch/qos/logback/logback-core/1.0.13/logback-core-1.0.13.jar;C:/Users/jkwon/.m2/repository/ch/qos/logback/logback-classic/1.0.13/logback-classic-1.0.13.jar;C:/Users/jkwon/.m2/repository/org/yaml/snakeyaml/1.12/snakeyaml-1.12.jar;C:/Users/jkwon/.m2/repository/com/beust/jcommander/1.27/jcommander-1.27.jar;C:/Users/jkwon/.m2/repository/org/apache/commons/commons-lang3/3.1/commons-lang3-3.1.jar;C:/Users/jkwon/.m2/repository/org/apache/commons/commons-math3/3.2/commons-math3-3.2.jar;C:/Users/jkwon/.m2/repository/com/github/jinahya/commons-codec-proxies/1.0.1/commons-codec-proxies-1.0.1.jar;C:/Users/jkwon/.m2/repository/org/hamcrest/hamcrest-core/1.1/hamcrest-core-1.1.jar;C:/Users/jkwon/.m2/repository/org/beanshell/bsh/2.0b4/bsh-2.0b4.jar;C:/Users/jkwon/.m2/repository/org/testng/testng/6.8.7/testng-6.8.7.jar;C:/Users/jkwon/.m2/repository/org/slf4j/slf4j-api/1.7.5/slf4j-api-1.7.5.jar;C:/Users/jkwon/.m2/repository/junit/junit/4.10/junit-4.10.jar;C:/Users/jkwon/.m2/repository/commons-codec/commons-codec/1.5/commons-codec-1.5.jar'
+-encoding
+'UTF-8'
+-protected
+-sourcepath
+'D:/gitcl/github.com/jinahya/hex-codec/target/checkout/src/test/java'
+-author
+-bottom
+'Copyright &#169; 2011-2013. All Rights Reserved.'
+-charset
+'UTF-8'
+-d
+'D:/gitcl/github.com/jinahya/hex-codec/target/checkout/target/site/testapidocs'
+-docencoding
+'UTF-8'
+-doctitle
+'hex-codec 1.0.1 Test API'
+-link
+'http://java.sun.com/javase/6/docs/api'
+-use
+-version
+-windowtitle
+'hex-codec 1.0.1 Test API'
