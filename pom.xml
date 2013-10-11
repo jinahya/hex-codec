@@ -6,7 +6,7 @@
   <!-- The Basics -->
   <groupId>com.github.jinahya</groupId>
   <artifactId>hex-codec</artifactId>
-  <version>1.0-alpha-5</version>
+  <version>1.0.1-SNAPSHOT</version>
   <packaging>jar</packaging>
   <parent>
     <groupId>org.sonatype.oss</groupId>
@@ -286,12 +286,12 @@
     <connection>scm:git:git@github.com:jinahya/hex-codec.git</connection>
     <developerConnection>scm:git:git@github.com:jinahya/hex-codec.git</developerConnection>
     <url>https://github.com/jinahya/hex-codec</url>
-    <tag>1.0</tag>
+    <tag>HEAD</tag>
   </scm>
   <prerequisites>
     <maven>3.0.5</maven>
   </prerequisites>
-  <repositories/>
+  <repositories />
   <pluginRepositories />
   <distributionManagement>
     <site>
