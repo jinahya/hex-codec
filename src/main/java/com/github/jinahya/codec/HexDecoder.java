@@ -18,7 +18,11 @@
 package com.github.jinahya.codec;
 
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
+import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import org.slf4j.Logger;
@@ -35,8 +39,8 @@ public class HexDecoder {
     /**
      * logger.
      */
-    private static final Logger LOGGER =
-        LoggerFactory.getLogger(HexDecoder.class);
+    private static final Logger LOGGER
+        = LoggerFactory.getLogger(HexDecoder.class);
 
 
     /**
@@ -91,7 +95,7 @@ public class HexDecoder {
     public static int decodeSingle(final byte[] input, final int inoff) {
 
         if (input == null) {
-            throw new NullPointerException("input");
+            throw new NullPointerException("input == null");
         }
 
         if (input.length < 2) {
@@ -116,8 +120,8 @@ public class HexDecoder {
 
 
     /**
-     * Decodes two nibbles in given input array and writes the resulting single
-     * octet into specified output array.
+     * Decodes two nibbles in given input array and writes the decoded single
+     * octet on specified output array.
      *
      * @param input the input array
      * @param inoff the offset in input array
@@ -128,7 +132,7 @@ public class HexDecoder {
                                     final byte[] output, final int outoff) {
 
         if (output == null) {
-            throw new NullPointerException("output");
+            throw new NullPointerException("output == null");
         }
 
         if (outoff < 0) {
@@ -146,8 +150,8 @@ public class HexDecoder {
 
 
     /**
-     * Decodes multiple units in given input array and writes the resulting
-     * octets into specifed output array.
+     * Decodes multiple nibbles in given input array and writes the decoded
+     * octets on specified output array.
      *
      * @param input the input array
      * @param inoff the offset in input array
@@ -161,6 +165,19 @@ public class HexDecoder {
 
         if (count < 0) {
             throw new IllegalArgumentException("count(" + count + ") < 0");
+        }
+
+        if (inoff + count * 2 > input.length) {
+            throw new IllegalArgumentException(
+                "inoff(" + inoff + ") + count(" + count + ") * 2 = "
+                + (inoff + count * 2) + ">= input.length(" + input.length
+                + ")");
+        }
+
+        if (outoff + count > output.length) {
+            throw new IllegalArgumentException(
+                "outoff(" + outoff + ") + count(" + count + ") = "
+                + (inoff + count) + ">= output.length(" + output.length + ")");
         }
 
         for (int i = 0; i < count; i++) {
@@ -181,14 +198,131 @@ public class HexDecoder {
     public static byte[] decodeMultiple(final byte[] input) {
 
         if (input == null) {
-            throw new NullPointerException("input");
+            throw new NullPointerException("input == null");
         }
 
-        final byte[] output = new byte[input.length >> 1]; // /2
+        final byte[] output = new byte[input.length >> 1]; // / 2
 
         decodeMultiple(input, 0, output, 0, output.length);
 
         return output;
+    }
+
+
+    public static long decode(final InputStream input,
+                              final OutputStream output, final byte[] inbuf,
+                              final long length)
+        throws IOException {
+
+        if (input == null) {
+            throw new NullPointerException("input");
+        }
+
+        if (output == null) {
+            throw new NullPointerException("output");
+        }
+
+        if (inbuf == null) {
+            throw new NullPointerException("buffer");
+        }
+
+        if (inbuf.length == 0) {
+            throw new IllegalArgumentException(
+                "inbuf.length(" + inbuf.length + ") == 0");
+        }
+
+        if (length < -1L) {
+            throw new IllegalArgumentException("length(" + length + ") < -1L");
+        }
+
+        final int o = (inbuf.length & 1) == 1 ? inbuf.length - 1 : inbuf.length;
+        final byte[] outbuf = new byte[o >> 1];
+
+        long count = 0L;
+
+        long remained = length - count;
+        for (int read; length == -1L || remained > 0L; count += read) {
+
+            read = input.read(inbuf, 0, o);
+            if (read == -1) {
+                break;
+            }
+            if (read < o && (read & 1) == 1) { // odd number of byte read
+                if ((inbuf[read] = (byte) input.read()) == -1) {
+                    throw new IOException("unacceptable end of stream");
+                }
+                read++;
+            }
+            assert (read & 1) == 0;
+            decodeMultiple(inbuf, 0, outbuf, 0, read);
+            output.write(outbuf, 0, read >> 1);
+            remained -= read;
+        }
+
+        return count;
+    }
+
+
+    public static long decode(final InputStream input,
+                              final OutputStream output, final long length)
+        throws IOException {
+
+        return decode(input, output, new byte[8192], length);
+    }
+
+
+    public static int decodeMultiple(final ByteBuffer input,
+                                     final ByteBuffer output) {
+
+        if (input == null) {
+            throw new NullPointerException("input");
+        }
+
+        if (output == null) {
+            throw new NullPointerException("output");
+        }
+
+        int count = 0;
+
+        for (; input.remaining() >= 2 && output.hasRemaining(); count++) {
+
+            output.put((byte) ((decodeHalf(input.get() & 0xFF) << 4)
+                               | decodeHalf(input.get() & 0xFF)));
+        }
+
+        return count;
+    }
+
+
+    /**
+     * Decodes all remaining nibbles in given input buffer and returns a byte
+     * buffer of decoded octets.
+     *
+     * @param input the input nibble buffer
+     *
+     * @return a byte buffer of encoded octets
+     */
+    public static ByteBuffer decodeMultiple(final ByteBuffer input) {
+
+        if (input == null) {
+            throw new NullPointerException("input");
+        }
+
+        final ByteBuffer output = ByteBuffer.allocate(input.remaining() >> 1);
+
+        final int count = decodeMultiple(input, output);
+        assert count == output.capacity() << 1;
+
+        return output;
+    }
+
+
+    /**
+     * Creates a new instance.
+     */
+    public HexDecoder() {
+
+        super();
     }
 
 
@@ -209,16 +343,23 @@ public class HexDecoder {
      * Decodes given sequence of nibbles into a string.
      *
      * @param input the nibbles to decode
-     * @param outputCharset the charset name to encode output string
+     * @param outputCharsetName the charset name to encode output string
      *
      * @return the decoded string.
      *
      * @throws UnsupportedEncodingException if outputCharset is not supported
+     *
+     * @see String#String(byte[], java.lang.String)
      */
-    public String decodeToString(final byte[] input, final String outputCharset)
+    public String decodeToString(final byte[] input,
+                                 final String outputCharsetName)
         throws UnsupportedEncodingException {
 
-        return new String(decode(input), outputCharset);
+        if (outputCharsetName == null) {
+            throw new NullPointerException("outputCharsetName == null");
+        }
+
+        return new String(decode(input), outputCharsetName);
     }
 
 
@@ -229,64 +370,171 @@ public class HexDecoder {
      * @param outputCharset the charset to encode output string
      *
      * @return the decoded string
+     *
+     * @see String#String(byte[], java.nio.charset.Charset)
      */
     public String decodeToString(final byte[] input,
                                  final Charset outputCharset) {
 
         if (outputCharset == null) {
-            throw new NullPointerException("outputCharset");
+            throw new NullPointerException("outputCharset == null");
         }
 
         return new String(decode(input), outputCharset);
     }
 
 
-    public byte[] decode(final String input, final String inputCharset)
+    /**
+     * Decodes given string.
+     *
+     * @param input the input string to decode
+     * @param inputCharsetName the charset name to decode the input string.
+     *
+     * @return an array of decoded octets
+     *
+     * @throws UnsupportedEncodingException {@code inputCharsetName} is not
+     * supported
+     *
+     * @see String#getBytes(java.lang.String)
+     */
+    public byte[] decode(final String input, final String inputCharsetName)
         throws UnsupportedEncodingException {
 
         if (input == null) {
-            throw new NullPointerException("input");
+            throw new NullPointerException("input == null");
         }
 
-        if (inputCharset == null) {
-            throw new NullPointerException("inputCharset");
+        if (inputCharsetName == null) {
+            throw new NullPointerException("inputCharsetName == null");
         }
 
-        return decode(input.getBytes(inputCharset));
+        return decode(input.getBytes(inputCharsetName));
     }
 
 
+    /**
+     * Decodes given string.
+     *
+     * @param input the input string to decode
+     * @param inputCharset the charset to decode the input string.
+     *
+     * @return an array of decoded octets
+     *
+     * @see String#getBytes(java.nio.charset.Charset)
+     */
     public byte[] decode(final String input, final Charset inputCharset) {
 
         if (input == null) {
-            throw new NullPointerException("input");
+            throw new NullPointerException("input == null");
         }
 
         if (inputCharset == null) {
-            throw new NullPointerException("inputCharset");
+            throw new NullPointerException("inputCharset == null");
         }
 
         return decode(input.getBytes(inputCharset));
     }
 
 
-    public String decodeToString(final String input, final String inputCharset,
-                                 final String outputCharset)
+    /**
+     * Decodes given input string and return decoded result as as string.
+     *
+     * @param input the input sting to decode
+     * @param inputCharsetName the charset name to decode input string.
+     * @param outputCharsetName the charset name to encode output string.
+     *
+     * @return a string of decoded result
+     *
+     * @throws UnsupportedEncodingException if either {@code inputCharsetName}
+     * or {@code outputCharsetName} is not supported
+     * @see String#getBytes(java.lang.String)
+     * @see String#String(byte[], java.lang.String)
+     */
+    public String decodeToString(final String input,
+                                 final String inputCharsetName,
+                                 final String outputCharsetName)
         throws UnsupportedEncodingException {
 
-        if (outputCharset == null) {
-            throw new NullPointerException("outputCharset");
+        if (outputCharsetName == null) {
+            throw new NullPointerException("outputCharsetName == null");
         }
 
-        return new String(decode(input, inputCharset), outputCharset);
+        return new String(decode(input, inputCharsetName), outputCharsetName);
     }
 
 
+    /**
+     * Decodes given input string and return decoded result as as string.
+     *
+     * @param input the input sting to decode
+     * @param inputCharset the charset to decode input string.
+     * @param outputCharsetName the charset name to encode output string.
+     *
+     * @return a string of decoded result
+     *
+     * @throws UnsupportedEncodingException if {@code outputCharsetName} is not
+     * supported
+     *
+     * @see #decode(java.lang.String, java.nio.charset.Charset)
+     * @see String#String(byte[], java.lang.String)
+     */
+    public String decodeToString(final String input, final Charset inputCharset,
+                                 final String outputCharsetName)
+        throws UnsupportedEncodingException {
+
+        if (outputCharsetName == null) {
+            throw new NullPointerException("outputCharsetName == null");
+        }
+
+        return new String(decode(input, inputCharset), outputCharsetName);
+    }
+
+
+    /**
+     * Decodes given input string and return decoded result as as string.
+     *
+     * @param input the input sting to decode
+     * @param inputCharsetName the charset to decode input string.
+     * @param outputCharset the charset to encode output string.
+     *
+     * @return a string of decoded result
+     *
+     * @throws UnsupportedEncodingException if {@code inputCharsetName} is not
+     * supported
+     *
+     * @see #decode(java.lang.String, java.lang.String)
+     * @see String#String(byte[], java.nio.charset.Charset)
+     */
+    public String decodeToString(final String input,
+                                 final String inputCharsetName,
+                                 final Charset outputCharset)
+        throws UnsupportedEncodingException {
+
+        if (outputCharset == null) {
+            throw new NullPointerException("outputCharset == null");
+        }
+
+        return new String(decode(input, inputCharsetName), outputCharset);
+    }
+
+
+    /**
+     * Decodes given string and returns result as as string.
+     *
+     * @param input the input string to decode
+     * @param inputCharset the charset to decode input string to byte array.
+     * @param outputCharset the charset to encode output bytes to string
+     *
+     * @return decoded result as a string
+     *
+     * @see #decode(java.lang.String, java.nio.charset.Charset)
+     * @see String#String(byte[], java.nio.charset.Charset)
+     */
     public String decodeToString(final String input, final Charset inputCharset,
                                  final Charset outputCharset) {
 
         if (outputCharset == null) {
-            throw new NullPointerException("outputCharset");
+            throw new NullPointerException("outputCharset == null");
         }
 
         return new String(decode(input, inputCharset), outputCharset);

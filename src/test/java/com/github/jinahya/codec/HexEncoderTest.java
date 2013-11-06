@@ -37,8 +37,8 @@ public class HexEncoderTest {
     /**
      * logger.
      */
-    private static final Logger LOGGER =
-        LoggerFactory.getLogger(HexEncoderTest.class);
+    private static final Logger LOGGER
+        = LoggerFactory.getLogger(HexEncoderTest.class);
 
 
     @Test(enabled = true)
@@ -47,8 +47,8 @@ public class HexEncoderTest {
         final byte[] output = new byte[2];
         for (int i = 0; i < 256; i++) {
             HexEncoder.encodeSingle(i, output, 0);
-            final String hex =
-                (i < 0x10 ? "0" : "") + Integer.toHexString(i).toUpperCase();
+            final String hex
+                = (i < 0x10 ? "0" : "") + Integer.toHexString(i).toUpperCase();
             Assert.assertEquals(new String(output, StandardCharsets.US_ASCII),
                                 hex);
         }
@@ -65,20 +65,19 @@ public class HexEncoderTest {
     @Test(invocationCount = 1)
     public void testEncode() {
         new HexEncoder().encode(new byte[0]);
-        new HexEncoder().encode(Tests.decodedBytes());
+        new HexEncoder().encode(HexCodecTests.decodedBytes());
     }
 
 
     @Test(enabled = true, invocationCount = 1)
     public void testEncodeAgainstCommonsCodecHex() throws EncoderException {
 
-        final byte[] decoded = Tests.decodedBytes();
+        final byte[] decoded = HexCodecTests.decodedBytes();
 
-        final byte[] expected = Tests.uppercase(new Hex().encode(decoded));
-        LOGGER.debug("expected: {}", expected);
+        final byte[] expected
+            = HexCodecTests.uppercase(new Hex().encode(decoded));
 
         final byte[] actual = new HexEncoder().encode(decoded);
-        LOGGER.debug("actual: {}", actual);
 
         Assert.assertEquals(actual, expected);
     }

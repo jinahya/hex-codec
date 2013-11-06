@@ -63,7 +63,7 @@ public class BossVsEngineerTestNanoTimeEncode {
         for (int i = 0; i < 16; i++) {
             baos.reset();
             while (baos.size() < 1048576L) {
-                baos.write(Tests.decodedBytes());
+                baos.write(HexCodecTests.decodedBytes());
             }
             final byte[] decoded = baos.toByteArray();
             new HexEncoder().encodeLikeABoss(decoded);
@@ -73,7 +73,7 @@ public class BossVsEngineerTestNanoTimeEncode {
         for (int i = 0; i < 16; i++) {
             baos.reset();
             while (baos.size() < 1048576L) {
-                baos.write(Tests.encodedBytes());
+                baos.write(HexCodecTests.encodedBytes());
             }
             final byte[] encoded = baos.toByteArray();
             new HexDecoder().decodeLikeABoss(encoded);
@@ -81,8 +81,8 @@ public class BossVsEngineerTestNanoTimeEncode {
         }
 
         for (int i = 0; i < 128; i++) {
-            encodeLikeABoss(Tests.decodedBytes());
-            encodeLikeAnEngineer(Tests.decodedBytes());
+            encodeLikeABoss(HexCodecTests.decodedBytes());
+            encodeLikeAnEngineer(HexCodecTests.decodedBytes());
         }
     }
 
@@ -114,7 +114,7 @@ public class BossVsEngineerTestNanoTimeEncode {
         final double[] elapsedLikeAnEngineer = new double[ROUNDS];
 
         for (int i = 0; i < ROUNDS; i++) {
-            final byte[] decoded = Tests.decodedBytes();
+            final byte[] decoded = HexCodecTests.decodedBytes();
             if (ThreadLocalRandom.current().nextBoolean()) {
                 elapsedLikeABoss[i] = encodeLikeABoss(decoded);
                 elapsedLikeAnEngineer[i] = encodeLikeAnEngineer(decoded);

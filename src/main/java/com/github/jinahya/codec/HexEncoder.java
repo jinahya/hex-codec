@@ -18,7 +18,11 @@
 package com.github.jinahya.codec;
 
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
+import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 
 
@@ -64,17 +68,17 @@ public class HexEncoder {
 
 
     /**
-     * Encodes a single octet into two hex chars.
+     * Encodes a single octet into two nibbles.
      *
      * @param input the octet to encode.
-     * @param output the array to which each encoded hex chars are written.
+     * @param output the array to which each encoded nibbles are written.
      * @param outoff the offset in the output array.
      */
     public static void encodeSingle(final int input, final byte[] output,
                                     final int outoff) {
 
         if (output == null) {
-            throw new NullPointerException("output");
+            throw new NullPointerException("output == null");
         }
 
         if (outoff < 0) {
@@ -104,7 +108,7 @@ public class HexEncoder {
                                     final byte[] output, final int outoff) {
 
         if (input == null) {
-            throw new NullPointerException("input");
+            throw new NullPointerException("input == null");
         }
 
         if (inoff < 0) {
@@ -137,6 +141,88 @@ public class HexEncoder {
 
 
     /**
+     * Encodes all or specified number of octets in given input stream and
+     * writes encoded nibbles to given output stream.
+     *
+     * @param input the input stream
+     * @param output the output stream
+     * @param inbuf the buffer to use
+     * @param length the maximum number of octets to encode
+     *
+     * @return the actual number of octets encoded
+     *
+     * @throws IOException if an I/O error occurs
+     */
+    public static long encode(final InputStream input,
+                              final OutputStream output, final byte[] inbuf,
+                              final long length)
+        throws IOException {
+
+        if (input == null) {
+            throw new NullPointerException("input");
+        }
+
+        if (output == null) {
+            throw new NullPointerException("output");
+        }
+
+        if (inbuf == null) {
+            throw new NullPointerException("buffer");
+        }
+
+        if (inbuf.length == 0) {
+            throw new IllegalArgumentException(
+                "inbuf.length(" + inbuf.length + ") == 0");
+        }
+
+        if (length < -1L) {
+            throw new IllegalArgumentException("length(" + length + ") < -1L");
+        }
+
+        final byte[] outbuf = new byte[inbuf.length << 1];
+
+        long count = 0L;
+
+        long remained = length - count;
+        for (int read; length == -1L || remained > 0L; count += read) {
+            int l = inbuf.length;
+            if (length != -1L && l > remained) {
+                l = (int) remained;
+            }
+            read = input.read(inbuf, 0, l);
+            if (read == -1) {
+                break;
+            }
+            encodeMultiple(inbuf, 0, outbuf, 0, read);
+            output.write(outbuf, 0, read << 1);
+            remained -= read;
+        }
+
+        return count;
+    }
+
+
+    /**
+     *
+     * @param input
+     * @param output
+     * @param length
+     *
+     * @return number of actual octets encoded
+     *
+     * @throws IOException if an I/O error occurs.
+     *
+     * @see #encode(java.io.InputStream, java.io.OutputStream, byte[], long)
+     */
+    public static long encode(final InputStream input,
+                              final OutputStream output, final long length)
+        throws IOException {
+
+        return encode(input, output, new byte[4096], length);
+    }
+
+
+    /**
      * Encodes given sequence of octets into a sequence of nibbles.
      *
      * @param input the octets to encode
@@ -146,7 +232,7 @@ public class HexEncoder {
     public static byte[] encodeMultiple(final byte[] input) {
 
         if (input == null) {
-            throw new NullPointerException("input");
+            throw new NullPointerException("input == null");
         }
 
         final byte[] output = new byte[input.length << 1]; // * 2
@@ -154,6 +240,70 @@ public class HexEncoder {
         encodeMultiple(input, 0, output, 0, input.length);
 
         return output;
+    }
+
+
+    /**
+     * Encodes all or some remaining octets in given input buffer and put those
+     * encoded nibbles into given output buffer.
+     *
+     * @param input the input octet buffer
+     * @param output the output nibble buffer
+     *
+     * @return the number of octets encoded
+     */
+    public static int encodeMultiple(final ByteBuffer input,
+                                     final ByteBuffer output) {
+
+        if (input == null) {
+            throw new NullPointerException("input");
+        }
+
+        if (output == null) {
+            throw new NullPointerException("output");
+        }
+
+        int count = 0;
+
+        for (; input.hasRemaining() && output.remaining() >= 2; count++) {
+            final byte octet = input.get();
+            output.put((byte) encodeHalf((octet >> 4) & 0x0F));
+            output.put((byte) encodeHalf(octet & 0x0F));
+        }
+
+        return count;
+    }
+
+
+    /**
+     * Encodes all remaining octets in given input buffer and returns a byte
+     * buffer of encoded nibbles.
+     *
+     * @param input the input octet buffer
+     *
+     * @return a byte buffer of encoded nibbles
+     */
+    public static ByteBuffer encodeMultiple(final ByteBuffer input) {
+
+        if (input == null) {
+            throw new NullPointerException("input");
+        }
+
+        final ByteBuffer output = ByteBuffer.allocate(input.remaining() << 1);
+
+        final int count = encodeMultiple(input, output);
+        assert count == output.capacity() >> 1;
+
+        return output;
+    }
+
+
+    /**
+     * Creates a new instance.
+     */
+    public HexEncoder() {
+
+        super();
     }
 
 
@@ -170,15 +320,25 @@ public class HexEncoder {
     }
 
 
+    /**
+     *
+     * @param input
+     * @param outputCharsetName
+     *
+     * @return
+     *
+     * @throws UnsupportedEncodingException if {@code outputCharsetName} is not
+     * supported
+     */
     public String encodedToString(final byte[] input,
-                                  final String outputCharset)
+                                  final String outputCharsetName)
         throws UnsupportedEncodingException {
 
-        if (outputCharset == null) {
-            throw new NullPointerException("outputCharset");
+        if (outputCharsetName == null) {
+            throw new NullPointerException("outputCharsetName == null");
         }
 
-        return new String(encode(input), outputCharset);
+        return new String(encode(input), outputCharsetName);
     }
 
 
@@ -186,51 +346,65 @@ public class HexEncoder {
                                   final Charset outputCharset) {
 
         if (outputCharset == null) {
-            throw new NullPointerException("outputCharset");
+            throw new NullPointerException("outputCharset == null");
         }
 
         return new String(encode(input), outputCharset);
     }
 
 
-    public byte[] encode(final String input, final String inputCharset)
+    public byte[] encode(final String input, final String inputCharsetName)
         throws UnsupportedEncodingException {
 
         if (input == null) {
-            throw new NullPointerException("input");
+            throw new NullPointerException("input == null");
         }
 
-        if (inputCharset == null) {
-            throw new NullPointerException("inputCharset");
+        if (inputCharsetName == null) {
+            throw new NullPointerException("inputCharsetName == null");
         }
 
-        return encode(input.getBytes(inputCharset));
+        return encode(input.getBytes(inputCharsetName));
     }
 
 
     public byte[] encode(final String input, final Charset inputCharset) {
 
         if (input == null) {
-            throw new NullPointerException("input");
+            throw new NullPointerException("input == null");
         }
 
         if (inputCharset == null) {
-            throw new NullPointerException("inputCharset");
+            throw new NullPointerException("inputCharset == null");
         }
 
         return encode(input.getBytes(inputCharset));
     }
 
 
-    public String encodeToString(final String input, final String inputCharset,
-                                 final String outputCharset)
+    /**
+     *
+     * @param input
+     * @param inputCharsetName
+     * @param outputCharsetName
+     *
+     * @return
+     *
+     * @throws UnsupportedEncodingException
+     *
+     * @see #encode(java.lang.String, java.lang.String)
+     * @see String#String(byte[], java.lang.String)
+     */
+    public String encodeToString(final String input,
+                                 final String inputCharsetName,
+                                 final String outputCharsetName)
         throws UnsupportedEncodingException {
 
-        if (outputCharset == null) {
-            throw new NullPointerException("outputCharset");
+        if (outputCharsetName == null) {
+            throw new NullPointerException("outputCharsetName == null");
         }
 
-        return new String(encode(input, inputCharset), outputCharset);
+        return new String(encode(input, inputCharsetName), outputCharsetName);
     }
 
 
@@ -242,12 +416,15 @@ public class HexEncoder {
      * @param outputCharset the charset to encode output string.
      *
      * @return the encoded string.
+     *
+     * @see #encode(java.lang.String, java.nio.charset.Charset)
+     * @see String#String(byte[], java.nio.charset.Charset)
      */
     public String encodeToString(final String input, final Charset inputCharset,
                                  final Charset outputCharset) {
 
         if (outputCharset == null) {
-            throw new NullPointerException("outputCharset");
+            throw new NullPointerException("outputCharset == null");
         }
 
         return new String(encode(input, inputCharset), outputCharset);
@@ -309,3 +486,4 @@ public class HexEncoder {
 
 
 }
+

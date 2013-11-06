@@ -81,14 +81,14 @@ public class HexDecoderTest {
     @Test(enabled = true)
     public void testDecode() {
         new HexDecoder().decode(new byte[0]);
-        new HexDecoder().decode(Tests.encodedBytes());
+        new HexDecoder().decode(HexCodecTests.encodedBytes());
     }
 
 
     @Test(enabled = true, invocationCount = 128)
     public void testDecodeAgainstCommonsCodecHex() throws DecoderException {
 
-        final byte[] encoded = Tests.encodedBytes();
+        final byte[] encoded = HexCodecTests.encodedBytes();
 
         final byte[] expected = new Hex().decode(encoded);
 

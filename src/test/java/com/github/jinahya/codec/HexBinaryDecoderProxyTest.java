@@ -54,7 +54,7 @@ public class HexBinaryDecoderProxyTest {
             // expected
         }
 
-        final Object encoded = Tests.encodedBytes();
+        final Object encoded = HexCodecTests.encodedBytes();
         final Object decoded = decoder.decode(encoded);
     }
 
@@ -72,7 +72,7 @@ public class HexBinaryDecoderProxyTest {
             // expected
         }
 
-        final byte[] encoded = Tests.encodedBytes();
+        final byte[] encoded = HexCodecTests.encodedBytes();
         final byte[] decoded = decoder.decode(encoded);
     }
 

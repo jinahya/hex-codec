@@ -28,7 +28,7 @@ import org.apache.commons.lang3.RandomStringUtils;
  *
  * @author Jin Kwon <jinahya at gmail.com>
  */
-final class Tests {
+public final class HexCodecTests {
 
 
     static Random random() {
@@ -37,7 +37,7 @@ final class Tests {
     }
 
 
-    static byte[] decodedBytes(final int maxlen) {
+    public static byte[] decodedBytes(final int maxlen) {
 
         final byte[] decodedBytes = new byte[random().nextInt(maxlen)];
 
@@ -47,9 +47,9 @@ final class Tests {
     }
 
 
-    static byte[] decodedBytes() {
+    public static byte[] decodedBytes() {
 
-        return decodedBytes(128);
+        return decodedBytes(65536);
     }
 
 
@@ -61,13 +61,13 @@ final class Tests {
 
     static String decodedString() {
 
-        return decodedString(128);
+        return decodedString(65536);
     }
 
 
-    static byte[] encodedBytes() {
+    public static byte[] encodedBytes() {
 
-        final byte[] encodedBytes = new byte[random().nextInt(128) << 1];
+        final byte[] encodedBytes = new byte[random().nextInt(32768) << 1];
 
         for (int i = 0; i < encodedBytes.length; i++) {
             switch (random().nextInt() % 3) {
@@ -109,7 +109,7 @@ final class Tests {
     }
 
 
-    private Tests() {
+    private HexCodecTests() {
 
         super();
     }
