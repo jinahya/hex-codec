@@ -8,8 +8,8 @@
     <language>en-us</language>
     <copyright>&#169;2011 - 2013</copyright>
     <item>
-      <title>File: 4,
-             Errors: 89,
+      <title>File: 8,
+             Errors: 138,
              Warnings: 0,
              Infos: 0
       </title>
@@ -52,7 +52,21 @@
                   0
                 </td>
                 <td>
-                  46
+                  53
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://www.jinahya.com/mvn/site/com.github.jinahya/hex-codec/1.0.2-SNAPSHOT/checkstyle.html#com.github.jinahya.io.HexDecodingStream.java">com/github/jinahya/io/HexDecodingStream.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  4
                 </td>
               </tr>
                           <tr>
@@ -80,7 +94,49 @@
                   0
                 </td>
                 <td>
-                  40
+                  53
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://www.jinahya.com/mvn/site/com.github.jinahya/hex-codec/1.0.2-SNAPSHOT/checkstyle.html#com.github.jinahya.nio.channels.HexEncodingChannel.java">com/github/jinahya/nio/channels/HexEncodingChannel.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  11
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://www.jinahya.com/mvn/site/com.github.jinahya/hex-codec/1.0.2-SNAPSHOT/checkstyle.html#com.github.jinahya.nio.channels.HexDecodingChannel.java">com/github/jinahya/nio/channels/HexDecodingChannel.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  9
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://www.jinahya.com/mvn/site/com.github.jinahya/hex-codec/1.0.2-SNAPSHOT/checkstyle.html#com.github.jinahya.io.HexEncodingStream.java">com/github/jinahya/io/HexEncodingStream.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  5
                 </td>
               </tr>
                       </tbody>
