@@ -22,13 +22,22 @@ import com.github.jinahya.codec.commons.BinaryDecoderProxy;
 
 
 /**
- * A proxy class for {@code org.apache.commons.codec.BinaryEncoder}.
+ * A proxy class for {@link org.apache.commons.codec.BinaryEncoder}.
  *
  * @author Jin Kwon <jinahya at gmail.com>
  */
 public class HexBinaryDecoderProxy extends BinaryDecoderProxy<HexDecoder> {
 
 
+    /**
+     * Creates a new proxy instance for
+     * {@link org.apache.commons.codec.BinaryEncoder} with given
+     * {@code decoder}.
+     *
+     * @param decoder the decoder to proxy
+     *
+     * @return a new proxy instance.
+     */
     public static Object newInstance(final HexDecoder decoder) {
 
         if (decoder == null) {
@@ -74,3 +83,4 @@ public class HexBinaryDecoderProxy extends BinaryDecoderProxy<HexDecoder> {
 
 
 }
+

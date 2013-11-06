@@ -22,7 +22,7 @@ import com.github.jinahya.codec.commons.BinaryEncoderProxy;
 
 
 /**
- * A proxy class for {@code org.apache.commons.codec.BinaryEncoder}.
+ * A proxy class for {@link org.apache.commons.codec.BinaryEncoder}.
  *
  * @author Jin Kwon <jinahya at gmail.com>
  */
@@ -31,7 +31,7 @@ public class HexBinaryEncoderProxy extends BinaryEncoderProxy<HexEncoder> {
 
     /**
      * Returns a new proxy instance for
-     * {@code org.apache.commons.codec.BinaryEncoder} with given
+     * {@link org.apache.commons.codec.BinaryEncoder} with given
      * {@code encoder}.
      *
      * @param encoder the encoder to proxy
