@@ -22,6 +22,8 @@ import com.github.jinahya.codec.HexDecoder;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.ReadableByteChannel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -31,14 +33,21 @@ import java.nio.channels.ReadableByteChannel;
 public class HexDecodingChannel implements ReadableByteChannel {
 
 
+    /**
+     * logger.
+     */
+    private static final Logger LOGGER
+        = LoggerFactory.getLogger(HexDecodingChannel.class);
+
+
     public HexDecodingChannel(final ReadableByteChannel channel) {
 
         super();
 
         this.channel = channel;
 
-        bytes = new byte[2];
-        buffer = ByteBuffer.wrap(bytes);
+        wrapped = new byte[2];
+        wrapper = ByteBuffer.wrap(wrapped);
     }
 
 
@@ -49,83 +58,40 @@ public class HexDecodingChannel implements ReadableByteChannel {
             throw new NullPointerException("dst");
         }
 
+        if (dst.remaining() == 0) {
+            throw new IllegalArgumentException(
+                "dst.remaining(" + dst.remaining() + ") == 0");
+        }
+
         if (channel == null) {
             throw new IllegalStateException("channel is currently null");
         }
 
         final int position = dst.position();
 
-        while (dst.hasRemaining()) {
-            buffer.position(0);
-            for (int read; buffer.hasRemaining();) {
-                read = channel.read(buffer);
+        for (; dst.hasRemaining();) {
+            // read full 2 nibbles
+            wrapper.position(0);
+            for (int read; wrapper.hasRemaining();) {
+                read = channel.read(wrapper);
                 if (read == -1) {
+                    if (wrapper.position() == 0) {
+                        final int count = dst.position() - position;
+                        if (count == 0) {
+                            return -1;
+                        }
+                        return count;
+                    } else if (wrapper.position() == 1) {
+                        throw new IOException("unacceptable end of channel");
+                    }
                     break;
                 }
             }
-            if (buffer.position() == 0) {
-                break;
-            } else if (buffer.position() == 1) {
-                throw new IOException("unacceptable end of channel");
-            } else {
-                dst.put((byte) HexDecoder.decodeSingle(bytes, 0));
-            }
+            assert wrapper.position() == 2;
+            dst.put((byte) HexDecoder.decodeSingle(wrapped, 0));
         }
 
         return dst.position() - position;
-
-//        if (dst.remaining() == 0) {
-//            return 0;
-//        } else if (dst.remaining() == 1) {
-//            for (buffer.reset(); buffer.hasRemaining();) {
-//                final int read = channel.read(buffer);
-//                if (read == -1) {
-//                    if (buffer.position() == 0) {
-//                        return -1;
-//                    }
-//                    throw new IOException("unacceptable end of channel");
-//                }
-//            }
-//            assert buffer.remaining() == 0;
-//            dst.put((byte) HexDecoder.decodeSingle(bytes, 0));
-//            return 1;
-//        }
-//        assert dst.remaining() >= 2;
-//
-//        final int limit = dst.limit();
-//        if ((dst.remaining() & 1) == 1) { // odd number of remaining
-//            dst.limit(limit - 1);
-//        }
-//        assert (dst.remaining() & 1) == 0;
-//
-//        int count = 0;
-//        do {
-//            final int read = channel.read(dst);
-//            if (read == -1) {
-//                if (count == 0) {
-//                    return -1;
-//                }
-//                if ((count & 1) == 1) {
-//                    throw new IOException("unacceptable end of channel");
-//                }
-//            }
-//            count += read;
-//            if ((count & 1) == 0) {
-//                break;
-//            }
-//        } while ((count & 1) == 1);
-//
-//        int index = dst.position() - count;
-//        for (int i = index; i < dst.position(); i += 2) {
-//            bytes[0] = dst.get(i);
-//            bytes[0] = dst.get(i + 1);
-//            dst.put(index++, (byte) HexDecoder.decodeSingle(bytes, 0));
-//        }
-//        dst.position(index);
-//
-//        dst.limit(limit); // restore
-//
-//        return index;
     }
 
 
@@ -152,10 +118,10 @@ public class HexDecodingChannel implements ReadableByteChannel {
     protected ReadableByteChannel channel;
 
 
-    private transient byte[] bytes;
+    private final transient byte[] wrapped;
 
 
-    private transient ByteBuffer buffer;
+    private final transient ByteBuffer wrapper;
 
 
 }

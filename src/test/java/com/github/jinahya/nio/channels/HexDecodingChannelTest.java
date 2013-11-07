@@ -18,7 +18,16 @@
 package com.github.jinahya.nio.channels;
 
 
+import com.github.jinahya.codec.HexCodecTests;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.ByteBuffer;
+import java.nio.channels.Channels;
+import java.nio.channels.ReadableByteChannel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.testng.Assert;
 import org.testng.annotations.Test;
 
 
@@ -29,9 +38,65 @@ import org.testng.annotations.Test;
 public class HexDecodingChannelTest {
 
 
-    @Test
-    public void read_() throws IOException {
+    /**
+     * logger.
+     */
+    private static final Logger LOGGER
+        = LoggerFactory.getLogger(HexDecodingChannelTest.class);
 
+
+    @Test
+    public void read_eagerChannelInitialization() throws IOException {
+
+        final byte[] encodedBytes = HexCodecTests.encodedBytes();
+
+        final InputStream is = new ByteArrayInputStream(encodedBytes);
+        final ReadableByteChannel rbc = Channels.newChannel(is);
+
+        try (final HexDecodingChannel hdc = new HexDecodingChannel(rbc);) {
+            final ByteBuffer dst = ByteBuffer.allocate(8192);
+            int count = 0;
+            for (int read; (read = hdc.read(dst)) != -1; count += read) {
+                dst.position(0);
+            }
+            Assert.assertEquals(count, encodedBytes.length >> 1);
+        }
+    }
+
+
+    @Test(enabled = true)
+    public void read_lazyChannelInitialization() throws IOException {
+
+        final byte[] encodedBytes = HexCodecTests.encodedBytes();
+
+        final HexDecodingChannel hdc = new HexDecodingChannel(null) {
+
+
+            @Override
+            public int read(final ByteBuffer dst) throws IOException {
+
+                if (channel == null) {
+                    final InputStream is
+                        = new ByteArrayInputStream(encodedBytes);
+                    channel = Channels.newChannel(is);
+                }
+
+                return super.read(dst);
+            }
+
+
+        };
+
+        try {
+            final ByteBuffer dst = ByteBuffer.allocate(8192);
+            int count = 0;
+            for (int read; (read = hdc.read(dst)) != -1; count+= read) {
+                dst.position(0);
+            }
+            Assert.assertEquals(count, encodedBytes.length >> 1);
+        } finally {
+            hdc.close();
+        }
     }
 
 

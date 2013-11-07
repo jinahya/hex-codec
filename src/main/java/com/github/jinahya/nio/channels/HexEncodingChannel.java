@@ -31,14 +31,18 @@ import java.nio.channels.WritableByteChannel;
 public class HexEncodingChannel implements WritableByteChannel {
 
 
+    /**
+     *
+     * @param channel
+     */
     public HexEncodingChannel(final WritableByteChannel channel) {
 
         super();
 
         this.channel = channel;
 
-        bytes = new byte[2];
-        buffer = ByteBuffer.wrap(bytes);
+        wrapped = new byte[2];
+        wrapper = ByteBuffer.wrap(wrapped);
     }
 
 
@@ -56,11 +60,11 @@ public class HexEncodingChannel implements WritableByteChannel {
         final int position = src.position();
 
         while (src.hasRemaining()) {
-            HexEncoder.encodeSingle(src.get() & 0xFF, bytes, 0);
-            while (buffer.hasRemaining()) {
-                channel.write(buffer);
+            HexEncoder.encodeSingle(src.get(), wrapped, 0);
+            wrapper.position(0);
+            while (wrapper.hasRemaining()) {
+                channel.write(wrapper);
             }
-            buffer.position(0);
         }
 
         return src.position() - position;
@@ -90,10 +94,10 @@ public class HexEncodingChannel implements WritableByteChannel {
     protected WritableByteChannel channel;
 
 
-    private final byte[] bytes;
+    private final transient byte[] wrapped;
 
 
-    private final ByteBuffer buffer;
+    private final transient ByteBuffer wrapper;
 
 
 }

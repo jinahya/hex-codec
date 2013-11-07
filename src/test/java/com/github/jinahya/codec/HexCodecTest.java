@@ -30,7 +30,7 @@ import org.testng.annotations.Test;
 public class HexCodecTest {
 
 
-    @Test(invocationCount = 128)
+    @Test(enabled = false, invocationCount = 128)
     public void encodeLikeABossAndDecodeLikeAnEngineer() {
         final byte[] expected = HexCodecTests.decodedBytes();
         final byte[] encoded = new HexEncoder().encodeLikeABoss(expected);
@@ -39,7 +39,7 @@ public class HexCodecTest {
     }
 
 
-    @Test(invocationCount = 128)
+    @Test(enabled = false, invocationCount = 128)
     public void encodeLikeAnEnginenerAndDecodeLikeABoss() {
         final byte[] expected = HexCodecTests.decodedBytes();
         final byte[] encoded = new HexEncoder().encodeLikeAnEngineer(expected);
@@ -57,11 +57,11 @@ public class HexCodecTest {
     }
 
 
-    @Test(invocationCount = 128)
+    @Test(enabled = false, invocationCount = 128)
     public void testEncodeDecodeLikeABoss() {
 
-        final byte[] expected =
-            new byte[ThreadLocalRandom.current().nextInt(1024)];
+        final byte[] expected
+            = new byte[ThreadLocalRandom.current().nextInt(1024)];
         ThreadLocalRandom.current().nextBytes(expected);
 
         final byte[] encoded = new HexEncoder().encodeLikeABoss(expected);
@@ -77,7 +77,7 @@ public class HexCodecTest {
     }
 
 
-    @Test(invocationCount = 128)
+    @Test(enabled = false, invocationCount = 128)
     public void testEncodeDecodeLikeAnEngineer() {
 
         final byte[] expected = HexCodecTests.decodedBytes();

@@ -39,17 +39,17 @@ public class HexEncodingStreamTest {
         final byte[] decodedBytes = HexCodecTests.decodedBytes();
 
         final ByteArrayOutputStream baos
-            = new ByteArrayOutputStream(decodedBytes.length * 2);
+            = new ByteArrayOutputStream(decodedBytes.length << 1);
 
-        try (final OutputStream hos = new HexEncodingStream(baos)) {
+        try (final OutputStream hes = new HexEncodingStream(baos)) {
             for (final byte decodedByte : decodedBytes) {
-                hos.write(decodedByte);
+                hes.write(decodedByte);
             }
-            hos.flush();
+            hes.flush();
         }
 
         final byte[] encodedBytes = baos.toByteArray();
-        Assert.assertEquals(encodedBytes.length, decodedBytes.length * 2);
+        Assert.assertEquals(encodedBytes.length, decodedBytes.length << 1);
     }
 
 

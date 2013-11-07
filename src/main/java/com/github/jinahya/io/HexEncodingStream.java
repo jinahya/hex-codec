@@ -22,6 +22,8 @@ import com.github.jinahya.codec.HexEncoder;
 import java.io.FilterOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -31,25 +33,53 @@ import java.io.OutputStream;
 public class HexEncodingStream extends FilterOutputStream {
 
 
+    /**
+     * logger.
+     */
+    private static final Logger LOGGER
+        = LoggerFactory.getLogger(HexEncodingStream.class);
+
+
     public HexEncodingStream(final OutputStream out) {
 
         super(out);
 
-        output = new byte[2];
+        encoded = new byte[2];
     }
 
 
     @Override
     public void write(final int b) throws IOException {
 
-        HexEncoder.encodeSingle(b, output, 0);
-        
-        super.write(output[0]);
-        super.write(output[1]);
+        if (out == null) {
+            throw new IllegalStateException("out is currently null");
+        }
+
+        HexEncoder.encodeSingle(b, encoded, 0);
+
+        //LOGGER.trace("encoded[0]: {}", encoded[0]);
+        //LOGGER.trace("encoded[1]: {}", encoded[1]);
+        //assert encoded[0] > 0x00;
+        //assert encoded[0] <= 0x0F;
+        //assert encoded[1] > 0x00;
+        //assert encoded[1] <= 0x0F;
+
+        super.write(encoded[0]);
+        super.write(encoded[1]);
     }
 
 
-    private final byte[] output;
+    @Override
+    public void write(final byte[] b, final int off, final int len)
+        throws IOException {
+
+        for (int i = 0; i < len; i++) {
+            write(b[off + i]);
+        }
+    }
+
+
+    private transient final byte[] encoded;
 
 
 }

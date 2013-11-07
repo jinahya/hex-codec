@@ -22,6 +22,8 @@ import com.github.jinahya.codec.HexDecoder;
 import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -29,6 +31,13 @@ import java.io.InputStream;
  * @author <a href="mailto:onacit@gmail.com">Jin Kwon</a>
  */
 public class HexDecodingStream extends FilterInputStream {
+
+
+    /**
+     * logger.
+     */
+    private static final Logger LOGGER
+        = LoggerFactory.getLogger(HexDecodingStream.class);
 
 
     /**
@@ -40,26 +49,44 @@ public class HexDecodingStream extends FilterInputStream {
 
         super(in);
 
-        input = new byte[2];
+        encoded = new byte[2];
     }
 
 
     @Override
     public int read() throws IOException {
 
-        if ((input[0] = (byte) super.read()) == -1) {
+        if ((encoded[0] = (byte) super.read()) == -1) {
             return -1;
         }
+        //LOGGER.trace("encoded[0]: {}", encoded[0]);
 
-        if ((input[1] = (byte) super.read()) == -1) {
+        if ((encoded[1] = (byte) super.read()) == -1) {
             throw new IOException("unacceptable end of stream");
         }
+        //LOGGER.trace("encoded[1]: {}", encoded[1]);
 
-        return HexDecoder.decodeSingle(input, 0);
+        return HexDecoder.decodeSingle(encoded, 0);
     }
 
 
-    private final byte[] input;
+    @Override
+    public int read(final byte[] b, int off, final int len)
+        throws IOException {
+
+        int count = 0;
+
+        for (; count < len; count++) {
+            if ((b[off++] = (byte) read()) == -1) {
+                break;
+            }
+        }
+
+        return count;
+    }
+
+
+    private transient final byte[] encoded;
 
 
 }

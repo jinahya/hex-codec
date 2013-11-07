@@ -15,16 +15,15 @@
  */
 
 
-package com.github.jinahya.io;
+package com.github.jinahya.nio.channels;
 
 
 import com.github.jinahya.codec.HexCodecTests;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.DataInputStream;
 import java.io.IOException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.nio.ByteBuffer;
+import java.nio.channels.Channels;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -33,36 +32,31 @@ import org.testng.annotations.Test;
  *
  * @author <a href="mailto:onacit@gmail.com">Jin Kwon</a>
  */
-public class HexStreamTest {
+public class HexChannelTest {
 
 
-    /**
-     * logger.
-     */
-    private static final Logger LOGGER
-        = LoggerFactory.getLogger(HexStreamTest.class);
-
-
-    @Test(enabled = true, invocationCount = 1)
-    public static void writeRead_() throws IOException {
+    @Test
+    public void writeRead_() throws IOException {
 
         final byte[] expected = HexCodecTests.decodedBytes();
-        //final byte[] expected = new byte[]{(byte) 10};
 
         final ByteArrayOutputStream baos
             = new ByteArrayOutputStream(expected.length << 1);
-        try (final HexEncodingStream hes = new HexEncodingStream(baos)) {
-            hes.write(expected);
-            hes.flush();
+        try (final HexEncodingChannel hec
+            = new HexEncodingChannel(Channels.newChannel(baos))) {
+            for (final ByteBuffer src = ByteBuffer.wrap(expected);
+                 src.hasRemaining(); hec.write(src)) {
+            }
         }
 
-        final byte[] encoded = baos.toByteArray();
-        Assert.assertEquals(encoded.length, expected.length << 1);
-
-        final ByteArrayInputStream bais = new ByteArrayInputStream(encoded);
-        try (final HexDecodingStream hds = new HexDecodingStream(bais)) {
+        final ByteArrayInputStream bais
+            = new ByteArrayInputStream(baos.toByteArray());
+        try (final HexDecodingChannel hdc
+            = new HexDecodingChannel(Channels.newChannel(bais))) {
             final byte[] actual = new byte[expected.length];
-            new DataInputStream(hds).readFully(actual);
+            for (final ByteBuffer dst = ByteBuffer.wrap(actual);
+                 dst.hasRemaining(); hdc.read(dst)) {
+            }
             Assert.assertEquals(actual, expected);
         }
     }

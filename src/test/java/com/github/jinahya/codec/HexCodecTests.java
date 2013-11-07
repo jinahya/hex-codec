@@ -37,7 +37,27 @@ public final class HexCodecTests {
     }
 
 
+    private static final byte[] EMPTY_ENCODED_BYTES = new byte[0];
+
+
+    private static final String EMPTY_ENCODED_STRING = "";
+
+
+    private static final byte[] EMPTY_DECODED_BYTES = new byte[0];
+
+
+    private static final String EMPTY_DECODED_STRING = "";
+
+
     public static byte[] decodedBytes(final int maxlen) {
+
+        if (maxlen < 0) {
+            throw new IllegalArgumentException("maxlen(" + maxlen + ") < 0");
+        }
+
+        if (maxlen == 0) {
+            return EMPTY_DECODED_BYTES;
+        }
 
         final byte[] decodedBytes = new byte[random().nextInt(maxlen)];
 
@@ -49,11 +69,19 @@ public final class HexCodecTests {
 
     public static byte[] decodedBytes() {
 
-        return decodedBytes(65536);
+        return decodedBytes(4096);
     }
 
 
     static String decodedString(final int maxlen) {
+
+        if (maxlen < 0) {
+            throw new IllegalArgumentException("maxlen(" + maxlen + ") < 0");
+        }
+
+        if (maxlen == 0) {
+            return EMPTY_DECODED_STRING;
+        }
 
         return RandomStringUtils.random(random().nextInt(maxlen));
     }
@@ -61,13 +89,26 @@ public final class HexCodecTests {
 
     static String decodedString() {
 
-        return decodedString(65536);
+        return decodedString(4096);
     }
 
 
-    public static byte[] encodedBytes() {
+    public static byte[] encodedBytes(final int maxlen) {
 
-        final byte[] encodedBytes = new byte[random().nextInt(32768) << 1];
+        if (maxlen < 0) {
+            throw new IllegalArgumentException("maxlen(" + maxlen + ") < 0");
+        }
+
+        if ((maxlen & 1) == 1) {
+            throw new IllegalArgumentException(
+                "(maxlen(" + maxlen + ") & 1) == 1");
+        }
+
+        if (maxlen == 0) {
+            return EMPTY_ENCODED_BYTES;
+        }
+
+        final byte[] encodedBytes = new byte[random().nextInt(maxlen / 2) << 1];
 
         for (int i = 0; i < encodedBytes.length; i++) {
             switch (random().nextInt() % 3) {
@@ -87,9 +128,34 @@ public final class HexCodecTests {
     }
 
 
-    static String encodedString() {
+    public static byte[] encodedBytes() {
 
-        return new String(encodedBytes(), StandardCharsets.US_ASCII);
+        return encodedBytes(8192);
+    }
+
+
+    public static String encodedString(final int bound) {
+
+        if (bound < 0) {
+            throw new IllegalArgumentException("bound(" + bound + ") < 0");
+        }
+
+        if ((bound & 1) == 1) {
+            throw new IllegalArgumentException(
+                "(bound(" + bound + ") & 1) == 1");
+        }
+
+        if (bound == 0) {
+            return EMPTY_ENCODED_STRING;
+        }
+
+        return new String(encodedBytes(bound), StandardCharsets.US_ASCII);
+    }
+
+
+    public static String encodedString() {
+
+        return encodedString(8192);
     }
 
 
