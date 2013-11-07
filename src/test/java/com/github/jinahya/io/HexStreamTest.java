@@ -21,7 +21,6 @@ package com.github.jinahya.io;
 import com.github.jinahya.codec.HexCodecTests;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.DataInputStream;
 import java.io.IOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,11 +42,10 @@ public class HexStreamTest {
         = LoggerFactory.getLogger(HexStreamTest.class);
 
 
-    @Test(enabled = true, invocationCount = 1)
+    @Test(enabled = true, invocationCount = 32)
     public static void writeRead_() throws IOException {
 
         final byte[] expected = HexCodecTests.decodedBytes();
-        //final byte[] expected = new byte[]{(byte) 10};
 
         final ByteArrayOutputStream baos
             = new ByteArrayOutputStream(expected.length << 1);
@@ -62,7 +60,9 @@ public class HexStreamTest {
         final ByteArrayInputStream bais = new ByteArrayInputStream(encoded);
         try (final HexDecodingStream hds = new HexDecodingStream(bais)) {
             final byte[] actual = new byte[expected.length];
-            new DataInputStream(hds).readFully(actual);
+            for (int offset = 0; offset < actual.length;) {
+                offset += hds.read(actual, offset, actual.length - offset);
+            }
             Assert.assertEquals(actual, expected);
         }
     }

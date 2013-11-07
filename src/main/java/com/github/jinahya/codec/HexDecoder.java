@@ -36,9 +36,6 @@ import org.slf4j.LoggerFactory;
 public class HexDecoder {
 
 
-    /**
-     * logger.
-     */
     private static final Logger LOGGER
         = LoggerFactory.getLogger(HexDecoder.class);
 

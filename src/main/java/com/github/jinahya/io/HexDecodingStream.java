@@ -22,8 +22,6 @@ import com.github.jinahya.codec.HexDecoder;
 import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 /**
@@ -33,11 +31,8 @@ import org.slf4j.LoggerFactory;
 public class HexDecodingStream extends FilterInputStream {
 
 
-    /**
-     * logger.
-     */
-    private static final Logger LOGGER
-        = LoggerFactory.getLogger(HexDecodingStream.class);
+//    private static final Logger LOGGER
+//        = LoggerFactory.getLogger(HexDecodingStream.class);
 
 
     /**
@@ -56,15 +51,17 @@ public class HexDecodingStream extends FilterInputStream {
     @Override
     public int read() throws IOException {
 
+        if (in == null) {
+            throw new IllegalStateException("in is currently null");
+        }
+
         if ((encoded[0] = (byte) super.read()) == -1) {
             return -1;
         }
-        //LOGGER.trace("encoded[0]: {}", encoded[0]);
 
         if ((encoded[1] = (byte) super.read()) == -1) {
             throw new IOException("unacceptable end of stream");
         }
-        //LOGGER.trace("encoded[1]: {}", encoded[1]);
 
         return HexDecoder.decodeSingle(encoded, 0);
     }
@@ -76,10 +73,12 @@ public class HexDecodingStream extends FilterInputStream {
 
         int count = 0;
 
-        for (; count < len; count++) {
-            if ((b[off++] = (byte) read()) == -1) {
-                break;
-            }
+        for (int read; count < len && (read = read()) != -1; count++) {
+            b[off++] = (byte) read;
+        }
+
+        if (count == 0) {
+            return -1;
         }
 
         return count;
