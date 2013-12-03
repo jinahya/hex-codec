@@ -145,13 +145,13 @@
 <tr>  <td class="numLineCover">&nbsp;70</td>  <td class="nbHitsCovered">&nbsp;5</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">final</span> <span class="keyword">int</span> position = dst.position();</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;71</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;72</td>  <td class="nbHitsCovered"><a title="Line 72: Conditional coverage 100% (2/2).">&nbsp;6072</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 72: Conditional coverage 100% (2/2).">        <span class="keyword">for</span> (; dst.hasRemaining();) {</a></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;72</td>  <td class="nbHitsCovered"><a title="Line 72: Conditional coverage 100% (2/2).">&nbsp;1162</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 72: Conditional coverage 100% (2/2).">        <span class="keyword">for</span> (; dst.hasRemaining();) {</a></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;73</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;            <span class="comment">// read full 2 nibbles</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;74</td>  <td class="nbHitsCovered">&nbsp;6071</td>  <td class="src"><pre class="src">&nbsp;            wrapper.position(0);</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;75</td>  <td class="nbHitsCovered"><a title="Line 75: Conditional coverage 100% (2/2).">&nbsp;12138</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 75: Conditional coverage 100% (2/2).">            <span class="keyword">for</span> (<span class="keyword">int</span> read; wrapper.hasRemaining();) {</a></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;76</td>  <td class="nbHitsCovered">&nbsp;6071</td>  <td class="src"><pre class="src">&nbsp;                read = channel.read(wrapper);</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;77</td>  <td class="nbHitsCovered"><a title="Line 77: Conditional coverage 100% (2/2).">&nbsp;6071</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 77: Conditional coverage 100% (2/2).">                <span class="keyword">if</span> (read == -1) {</a></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;74</td>  <td class="nbHitsCovered">&nbsp;1161</td>  <td class="src"><pre class="src">&nbsp;            wrapper.position(0);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;75</td>  <td class="nbHitsCovered"><a title="Line 75: Conditional coverage 100% (2/2).">&nbsp;2318</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 75: Conditional coverage 100% (2/2).">            <span class="keyword">for</span> (<span class="keyword">int</span> read; wrapper.hasRemaining();) {</a></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;76</td>  <td class="nbHitsCovered">&nbsp;1161</td>  <td class="src"><pre class="src">&nbsp;                read = channel.read(wrapper);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;77</td>  <td class="nbHitsCovered"><a title="Line 77: Conditional coverage 100% (2/2).">&nbsp;1161</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 77: Conditional coverage 100% (2/2).">                <span class="keyword">if</span> (read == -1) {</a></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;78</td>  <td class="nbHitsUncovered"><a title="Line 78: Conditional coverage 50% (1/2).">&nbsp;4</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 78: Conditional coverage 50% (1/2).">                    <span class="keyword">if</span> (wrapper.position() == 0) {</a></span></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;79</td>  <td class="nbHitsCovered">&nbsp;4</td>  <td class="src"><pre class="src">&nbsp;                        <span class="keyword">final</span> <span class="keyword">int</span> count = dst.position() - position;</pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;80</td>  <td class="nbHitsCovered"><a title="Line 80: Conditional coverage 100% (2/2).">&nbsp;4</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 80: Conditional coverage 100% (2/2).">                        <span class="keyword">if</span> (count == 0) {</a></pre></td></tr>
@@ -169,8 +169,8 @@
   <td class="src"><pre class="src">&nbsp;                }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;89</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;            }</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;90</td>  <td class="nbHitsUncovered"><a title="Line 90: Conditional coverage 50% (2/4) [each condition: 50%, 50%].">&nbsp;6067</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 90: Conditional coverage 50% (2/4) [each condition: 50%, 50%].">            <span class="keyword">assert</span> wrapper.position() == 2;</a></span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;91</td>  <td class="nbHitsCovered">&nbsp;6067</td>  <td class="src"><pre class="src">&nbsp;            dst.put((<span class="keyword">byte</span>) HexDecoder.decodeSingle(wrapped, 0));</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;90</td>  <td class="nbHitsUncovered"><a title="Line 90: Conditional coverage 50% (2/4) [each condition: 50%, 50%].">&nbsp;1157</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 90: Conditional coverage 50% (2/4) [each condition: 50%, 50%].">            <span class="keyword">assert</span> wrapper.position() == 2;</a></span></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;91</td>  <td class="nbHitsCovered">&nbsp;1157</td>  <td class="src"><pre class="src">&nbsp;            dst.put((<span class="keyword">byte</span>) HexDecoder.decodeSingle(wrapped, 0));</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;92</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;93</td>  <td class="nbHits">&nbsp;</td>
@@ -240,6 +240,6 @@
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 </table>
 
-<div class="footer">Report generated by <a href="http://cobertura.sourceforge.net/" target="_top">Cobertura</a> 1.9.4.1 on 12/3/13 12:23 AM.</div>
+<div class="footer">Report generated by <a href="http://cobertura.sourceforge.net/" target="_top">Cobertura</a> 1.9.4.1 on 12/4/13 12:23 AM.</div>
 </body>
 </html>
