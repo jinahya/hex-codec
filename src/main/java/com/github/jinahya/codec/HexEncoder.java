@@ -36,11 +36,12 @@ public class HexEncoder {
     /**
      * Encodes a nibble to a single hex char.
      *
-     * @param input the nibble to encode
+     * @param input the nibble to encode between {@code 0x00} inclusive and
+     * {@code 0x0F} inclusive.
      *
      * @return the encoded hex char.
      */
-    private static int encodeHalf(final int input) {
+    public static int encodeHalf(final int input) {
 
         switch (input) {
             case 0x00:
@@ -62,23 +63,23 @@ public class HexEncoder {
             case 0x0F:
                 return input + 0x37; // 0x41('A') ~ 0x46('F')
             default:
-                throw new IllegalArgumentException("illegal half: " + input);
+                throw new IllegalArgumentException("illegal input: " + input);
         }
     }
 
 
     /**
-     * Encodes a single octet into two nibbles.
+     * Encodes a single octet into two hex characters.
      *
      * @param input the octet to encode.
-     * @param output the array to which each encoded nibbles are written.
+     * @param output the array to which each encoded hex characters are written.
      * @param outoff the offset in the output array.
      */
     public static void encodeSingle(final int input, final byte[] output,
                                     final int outoff) {
 
         if (output == null) {
-            throw new NullPointerException("output == null");
+            throw new NullPointerException("null output");
         }
 
         if (outoff < 0) {
@@ -97,18 +98,18 @@ public class HexEncoder {
 
 
     /**
-     * Encodes a single octet into two nibbles.
+     * Encodes a single octet into two hex characters.
      *
      * @param input the input byte array
      * @param inoff the offset in the input array
-     * @param output the array to which each encoded nibbles are written.
+     * @param output the array to which each encoded hex characters are written.
      * @param outoff the offset in the output array.
      */
     public static void encodeSingle(final byte[] input, final int inoff,
                                     final byte[] output, final int outoff) {
 
         if (input == null) {
-            throw new NullPointerException("input == null");
+            throw new NullPointerException("null input");
         }
 
         if (inoff < 0) {
@@ -124,12 +125,37 @@ public class HexEncoder {
     }
 
 
+    /**
+     * Encodes specified number of bytes to hex characters.
+     *
+     * @param input the input array.
+     * @param inoff the starting offset in {@code input}.
+     * @param output the output array.
+     * @param outoff the starting offset in {@code output}.
+     * @param count the number of octets to encode.
+     */
     public static void encodeMultiple(final byte[] input, int inoff,
                                       final byte[] output, int outoff,
                                       final int count) {
 
+        if (input == null) { // input.length below
+            throw new NullPointerException("null input");
+        }
+
         if (count < 0) {
             throw new IllegalArgumentException("count(" + count + ") < 0");
+        }
+
+        if (inoff + count > input.length) {
+            throw new IllegalArgumentException(
+                "inoff(" + inoff + ") + count(" + count + ") > input.length("
+                + input.length + ")");
+        }
+
+        if (outoff + (count * 2) > output.length) {
+            throw new IllegalArgumentException(
+                "outoff(" + outoff + ") + (count(" + count
+                + ") * 2) > output.length(" + output.length + ")");
         }
 
         for (int i = 0; i < count; i++) {
@@ -141,13 +167,14 @@ public class HexEncoder {
 
 
     /**
-     * Encodes all or specified number of octets in given input stream and
-     * writes encoded nibbles to given output stream.
+     * Encodes all or specified number of octets from given input stream and
+     * writes encoded hex characters to given output stream.
      *
      * @param input the input stream
      * @param output the output stream
      * @param inbuf the buffer to use
-     * @param length the maximum number of octets to encode
+     * @param length the maximum number of octets to encode; {@code -1L} for all
+     * available octets
      *
      * @return the actual number of octets encoded
      *
@@ -159,15 +186,15 @@ public class HexEncoder {
         throws IOException {
 
         if (input == null) {
-            throw new NullPointerException("input");
+            throw new NullPointerException("null input");
         }
 
         if (output == null) {
-            throw new NullPointerException("output");
+            throw new NullPointerException("null output");
         }
 
         if (inbuf == null) {
-            throw new NullPointerException("buffer");
+            throw new NullPointerException("null inbuf");
         }
 
         if (inbuf.length == 0) {
@@ -184,13 +211,12 @@ public class HexEncoder {
         long count = 0L;
 
         long remained = length - count;
+        int inlen = inbuf.length;
         for (int read; length == -1L || remained > 0L; count += read) {
-            int l = inbuf.length;
-            if (length != -1L && l > remained) {
-                l = (int) remained;
+            if (length != -1L && inlen > remained) {
+                inlen = (int) remained;
             }
-            read = input.read(inbuf, 0, l);
-            if (read == -1) {
+            if ((read = input.read(inbuf, 0, inlen)) == -1) {
                 break;
             }
             encodeMultiple(inbuf, 0, outbuf, 0, read);
@@ -203,31 +229,11 @@ public class HexEncoder {
 
 
     /**
+     * Encodes given array of octets into an array of hex characters.
      *
-     * @param input
-     * @param output
-     * @param length
+     * @param input the array of octets to encode
      *
-     * @return number of actual octets encoded
-     *
-     * @throws IOException if an I/O error occurs.
-     *
-     * @see #encode(java.io.InputStream, java.io.OutputStream, byte[], long)
-     */
-    public static long encode(final InputStream input,
-                              final OutputStream output, final long length)
-        throws IOException {
-
-        return encode(input, output, new byte[4096], length);
-    }
-
-
-    /**
-     * Encodes given sequence of octets into a sequence of nibbles.
-     *
-     * @param input the octets to encode
-     *
-     * @return the encoded nibbles.
+     * @return an array of encoded hex characters.
      */
     public static byte[] encodeMultiple(final byte[] input) {
 
@@ -244,11 +250,11 @@ public class HexEncoder {
 
 
     /**
-     * Encodes all or some remaining octets in given input buffer and put those
-     * encoded nibbles into given output buffer.
+     * Encodes all remaining octets in given input buffer and put those encoded
+     * hex characters into given output buffer.
      *
-     * @param input the input octet buffer
-     * @param output the output nibble buffer
+     * @param input the input buffer
+     * @param output the output buffer
      *
      * @return the number of octets encoded
      */
@@ -277,16 +283,16 @@ public class HexEncoder {
 
     /**
      * Encodes all remaining octets in given input buffer and returns a byte
-     * buffer of encoded nibbles.
+     * buffer of encoded hex characters.
      *
-     * @param input the input octet buffer
+     * @param input the input buffer
      *
-     * @return a byte buffer of encoded nibbles
+     * @return a byte buffer of encoded hex characters
      */
     public static ByteBuffer encodeMultiple(final ByteBuffer input) {
 
         if (input == null) {
-            throw new NullPointerException("input");
+            throw new NullPointerException("null input");
         }
 
         final ByteBuffer output = ByteBuffer.allocate(input.remaining() << 1);
